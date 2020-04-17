@@ -1,15 +1,3 @@
-/**
- *-------------------------------------------------------------- 80 columns ---|
- * This is the main class for the application. It only has two methods: the
- * static main()  that kicks the whole thing off and a menu creation method.  
- * The given code instantiates the window and sets up its internals by creating 
- * and installing the drawing canvas, toolbar, and menus. All of the code works 
- * correctly as is and should require no changes.
- *  (minor edits by Nick Parlante 2/2002)
- *
- * @version      1.0 10/8/99
- * @author       Julie Zelenski
- */
 import java.io.*;
 import java.awt.*;
 import javax.swing.*;
@@ -19,11 +7,9 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 
 
-public class JavaDraw 
-{
+public class JavaDraw {
 
-    static public void main(String[] args) 
-    {
+    static public void main(String[] args) {
 	JFrame frame = new JFrame("JavaDraw!");
 	Toolbar toolbar = new Toolbar();
 	DrawingCanvas canvas = new DrawingCanvas(toolbar, 350, 350);
@@ -43,7 +29,7 @@ public class JavaDraw
     }
 
 
-    private static File get_file_for_save(){
+    private static File get_file_for_save() {
 	JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
 	jfc.setDialogTitle("Choose a directory to save your file: ");
 
@@ -55,7 +41,7 @@ public class JavaDraw
 	return null;
     }
 
-    private static File get_file_for_open(){
+    private static File get_file_for_open() {
 	JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
 	jfc.setDialogTitle("Choose a directory to save your file: ");
 
@@ -67,7 +53,7 @@ public class JavaDraw
 	return null;
     }
 
-    public static void export(java.awt.Component component, String type, File file){
+    public static void export(java.awt.Component component, String type, File file) {
 	BufferedImage image = new BufferedImage(component.getWidth(), component.getHeight(), BufferedImage.TYPE_INT_RGB);
 	Graphics2D g = image.createGraphics();
 	g.dispose();
@@ -79,9 +65,7 @@ public class JavaDraw
     }
     
 
-    static protected JMenuBar createMenus(final DrawingCanvas canvas)
-
-    {
+    static protected JMenuBar createMenus(final DrawingCanvas canvas) {
 	JMenuBar mb = new JMenuBar();
 	JMenuItem mi;
 	int menuMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
@@ -106,7 +90,7 @@ public class JavaDraw
 		    canvas.saveToFile(get_file_for_save());
 		}});
 	m.add(mi = new JMenuItem("Export to PNG file"));
-	mi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, menuMask));
+	mi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, menuMask));
 	mi.addActionListener( new ActionListener() { 
 		public void actionPerformed(ActionEvent e) {
 		    File file = get_file_for_save();
