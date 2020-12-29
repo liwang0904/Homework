@@ -1,55 +1,46 @@
-shortest_path = {}
+def get_graph(filename):
+    graph = []
+    lines = open(filename).read().splitlines()
+    for line in lines:
+        graph.append([])
+        nums = line.split()
+        vertex = int(nums[0]) - 1
+        for tup in nums[1:]:
+            t, w = tup.split(',')
+            graph[vertex].append((int(t) - 1, int(w)))
+    return graph
 
-def dijkstra(graph , Node):
-    
-    global shortest_path
-    shortest_path[Node] = 0
-    growing_node = {Node}
-    
-    while (len(growing_node) != len(graph)):
-        
-        mini = 1000000
-        mini_edge = (None , None)
-        
-        for node in growing_node:
-            for edge in graph[node]:
-                
-                length = int(edge.split(",")[1])
-                head = edge.split(",")[0]
-                
-                if head not in growing_node:
-                    if shortest_path[node]+ length < mini:
-                        
-                        mini_edge = (node, head)
-                        mini = shortest_path[node] + length
-                        
-        if mini_edge != (None , None):
-            
-            growing_node.add(mini_edge[1])
-            shortest_path[mini_edge[1]] = mini
-            
-        else:
-            
-            for key in graph.keys():
-                if key not in growing_node:
-                    
-                    growing_node.add(key)
-                    shortest_path[key] = mini
-                
-graph = {}
-with open('dijkstraData.txt') as f:
-    data = f.readlines()
-    for line in data:
-        elements = list(map(str, line.split('\t')[:-1]))
-        graph[str(elements[0])] = elements[1:]
-f.close()
+def extract_min(priorityQueue, distances):
+    i = 0
+    j = 1
+    minimum = distances[priorityQueue[0]]
+    while j < len(priorityQueue):
+        if distances[priorityQueue[j]] < minimum:
+            i = j
+            minimum = distances[priorityQueue[j]]
+        j += 1
+    result = priorityQueue[i]
+    priorityQueue[i] = priorityQueue[-1]
+    priorityQueue.pop()
+    return result
 
-dijkstra(graph , "1")
+def dijkstra(graph, start):
+    distances = [float("inf")] * len(graph)
+    distances[start] = 0
+    priorityQueue = [i for i in range(len(graph))]
+    visited = [False] * len(graph)
+    while len(priorityQueue) > 0:
+        minimum = extract_min(priorityQueue, distances)
+        visited[minimum] = True
+        for vertex, adjacent in graph[minimum]:
+            if not visited[vertex]:
+                distances[vertex] = min(distances[vertex], distances[minimum] + adjacent)
+    return distances
 
-ans = ''
-for i in ['7','37','59','82','99','115','133','165','188','197']:
-    ans += str(shortest_path[i]) + "\n"
-
-ans = ans[:-1]
-
-print(ans)
+endings = [7, 37, 59, 82, 99, 115, 133, 165, 188, 197]
+graph = get_graph('dijkstraData.txt')
+distances = dijkstra(graph, 0)
+result = []
+for ending in endings:
+    result.append(distances[ending - 1])
+print(result)

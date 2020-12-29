@@ -1,64 +1,73 @@
-class SCC(object):
-    def __init__(self, input_file):
-        self.scc_list = []
-        with open(input_file) as file:
-            self.finish_order = []
-            self.graph = {}
-            for line in file:
-                (vertex1, vertex2) = tuple(number for number in line.split())
-                self.add_edge(int(vertex1), int(vertex2))
+import sys, threading
 
-    def add_edge(self, vertex1, vertex2):
-        if vertex1 in self.graph:
-            self.graph[vertex1].append(vertex2)
-        else:
-            self.graph[vertex1] = [vertex2]
-        if vertex2 in self.graph:
-            self.graph[vertex2].append(-vertex1)
-        else:
-            self.graph[vertex2] = [-vertex1]
+n = 875714
 
-    def compute_times(self):
-        visited, finished = set(), set()
-        for vertex in self.graph.keys():
-            if vertex in visited:
-                continue
-            stack = [vertex]
-            while stack:
-                node = stack.pop()
-                if node not in visited:
-                    visited.add(node)
-                    stack.append(node)
-                    neighbors = (-edge for edge in self.graph[node] if edge < 0)
-                    for neighbor in neighbors:
-                        if neighbor not in visited:
-                            stack.append(neighbor)
-                            
-                elif node not in finished:
-                    self.finish_order.append(node)
-                    finished.add(node)
+def get_graph(filename):
+    f = open(filename)
+    graph, graphReversed = {}, {}
+    for i in range(1, n + 1):
+        graph[i], graphReversed[i] = [], []
+    for line in f:
+        nums = line.split()
+        tail = int(nums[0])
+        head = int(nums[1])
+        graph[tail].append(head)
+        graphReversed[head].append(tail)
+    f.close()
+    return graph, graphReversed
 
-    def compute_scc(self):
-        visited = set()
-        for i in reversed(self.finish_order):
-            if i in visited:
-                continue
-            size = 0
-            stack = [i]
-            while stack:
-                node = stack.pop()
-                if node not in visited:
-                    size += 1
-                    visited.add(node)
-                    stack.append(node)
-                    neighbors = (edge for edge in self.graph[node] if edge > 0)
-                    for neighbor in neighbors:
-                        if neighbor not in visited:
-                            stack.append(neighbor)
-            self.scc_list.append(size)
-        self.scc_list.sort(reverse = True)
-        print(self.scc_list[:5])
+def depth_first_search(graph, node):
+    global processed
+    explored[node] = True
+    leader[node] = source
+    for head in graph[node]:
+        if not explored[head]:
+            depth_first_search(graph, head)
+    processed += 1
+    finish[node] = processed
 
-scc = SCC('SCC.txt')
-scc.compute_times()
-scc.compute_scc()
+def depth_first_search_loop(graph):
+    global processed, source, explored
+    processed = 0
+    source = 0
+    explored = {}
+    for i in range(1, n + 1):
+        explored[i] = False
+    for node in range(n, 0, -1):
+        if not explored[node]:
+            source = node
+            depth_first_search(graph, node)
+
+def kosaraju(graph, graphReversed):
+    global leader, finish
+    leader, finish = {}, {}
+    depth_first_search_loop(graphReversed)
+    graphReordered = {}
+    values = list(graph.values())
+    for i in range(1, n + 1):
+        temp = values[i - 1]
+        graphReordered[finish[i]] = [finish[x] for x in temp]
+    print('start 2')
+    depth_first_search_loop(graphReordered)
+    return leader
+
+def mostCommon(list, x):
+    from collections import Counter
+    result = []
+    counter = Counter(list)
+    for num, count in counter.most_common(x):
+        result.append(count)
+    return result
+
+def main():
+    print('start')
+    graph, graphReversed = get_graph('SCC.txt')
+    print('start 1')
+    leader = kosaraju(graph, graphReversed)
+    print(mostCommon(leader.values(), 5))
+
+if __name__ == '__main__':
+    threading.stack_size(67108864) 
+    sys.setrecursionlimit(2 ** 20)
+    thread = threading.Thread(target = main)
+    thread.start() 
